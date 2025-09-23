@@ -1,46 +1,93 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:bloc_cli/templates/bloc.dart';
+import 'package:bloc_cli/templates/event.dart';
+import 'package:bloc_cli/templates/state.dart';
+import 'package:bloc_cli/templates/view.dart';
 import 'package:path/path.dart' as p;
 
 /// Generates a new BLoC boilerplate with a view, state, bloc, and events file.
 void main(List<String> arguments) {
-  final parser = ArgParser()
+  final parser = ArgParser();
+  parser.addCommand('generate', ArgParser()
     ..addOption('name',
-        abbr: 'n', help: 'The name of the BLoC to generate.', mandatory: true);
+        abbr: 'n', help: 'The name of the BLoC to generate.', mandatory: true));
+  parser.addCommand('add-handler', ArgParser()
+    ..addOption('name',
+        abbr: 'n',
+        help: 'The name of the BLoC to modify (e.g., "Login").',
+        mandatory: true)
+    ..addOption('handler',
+        abbr: 'h',
+        help: 'The name of the handler to add (e.g., "FetchData").',
+        mandatory: true));
 
   try {
-    final results = parser.parse(arguments);
-    final blocName = results['name'] as String;
-    final snakeCaseBlocName = _toSnakeCase(blocName);
+    final ArgResults results = parser.parse(arguments);
+    final String? command = results.command?.name;
 
-    print('Generating BLoC boilerplate for "$blocName"...');
+    if (command == 'generate') {
+      final String blocName = results.command!['name'] as String;
+      final String snakeCaseBlocName = _toSnakeCase(blocName);
 
-    // Define directory structure
-    final blocDir = Directory(p.join(Directory.current.path, snakeCaseBlocName));
-    final viewDir = Directory(blocDir.path);
-    final stateDir = Directory(blocDir.path);
-    final eventsDir = Directory(blocDir.path);
-    final blocFileDir = Directory(blocDir.path);
+      print('Generating BLoC boilerplate for "$blocName"...');
 
-    // Create directories
-    if (!blocDir.existsSync()) blocDir.createSync();
-    if (!viewDir.existsSync()) viewDir.createSync();
-    if (!stateDir.existsSync()) stateDir.createSync();
-    if (!eventsDir.existsSync()) eventsDir.createSync();
-    if (!blocFileDir.existsSync()) blocFileDir.createSync();
+      final blocDir = Directory(p.join(Directory.current.path, snakeCaseBlocName));
+      if (!blocDir.existsSync()) blocDir.createSync(recursive: true);
 
-    // Generate files with template content
-    _generateFile(
-        p.join(viewDir.path, 'view.dart'), _createViewTemplate(blocName));
-    _generateFile(
-        p.join(stateDir.path, 'state.dart'), _createStateTemplate(blocName));
-    _generateFile(
-        p.join(eventsDir.path, 'events.dart'), _createEventsTemplate(blocName));
-    _generateFile(
-        p.join(blocFileDir.path, 'bloc.dart'), _createBlocTemplate(blocName));
+      _generateFile(p.join(blocDir.path, 'view.dart'), createViewTemplate(blocName));
+      _generateFile(p.join(blocDir.path, 'state.dart'), createStateTemplate(blocName));
+      _generateFile(p.join(blocDir.path, 'events.dart'), createEventsTemplate(blocName));
+      _generateFile(p.join(blocDir.path, 'bloc.dart'), createBlocTemplate(blocName));
 
-    print('Successfully generated BLoC for "$blocName" in ${blocDir.path}');
+      print('Successfully generated BLoC for "$blocName" in ${blocDir.path}');
+    } else if (command == 'add-handler') {
+      final String blocName = results.command!['name'] as String;
+      final String handlerName = results.command!['handler'] as String;
+      final String snakeCaseBlocName = _toSnakeCase(blocName);
+
+      print('Adding handler for "$handlerName" to "$blocName"...');
+
+      final blocDir = Directory(p.join(Directory.current.path, snakeCaseBlocName));
+      if (!blocDir.existsSync()) {
+        print('Error: Directory for BLoC "$blocName" not found. Please run the "generate" command first.');
+        return;
+      }
+
+      final eventsFile = File(p.join(blocDir.path, 'events.dart'));
+      final stateFile = File(p.join(blocDir.path, 'state.dart'));
+      final blocFile = File(p.join(blocDir.path, 'bloc.dart'));
+
+      if (!eventsFile.existsSync() || !stateFile.existsSync() || !blocFile.existsSync()) {
+        print('Error: BLoC files not found in ${blocDir.path}.');
+        return;
+      }
+
+      // Add new event
+      final eventContent = eventsFile.readAsStringSync();
+      final newEventContent = eventContent.replaceFirst('}', createEventsTemplate(blocName, handlerName));
+      eventsFile.writeAsStringSync(newEventContent);
+      print('  ✓ Added event to events.dart');
+
+      // Add new state
+      final stateContent = stateFile.readAsStringSync();
+      final newStatusName = _toCamelCase(handlerName);
+      final newStateContent = stateContent.replaceFirst('}', createStateTemplate(blocName, newStatusName));
+      stateFile.writeAsStringSync(newStateContent);
+      print('  ✓ Added state status to state.dart');
+
+      // Add new handler
+      final blocContent = blocFile.readAsStringSync();
+      final newBlocContent = blocContent.replaceFirst('}', createBlocTemplate(blocName, handlerName));
+      blocFile.writeAsStringSync(newBlocContent);
+      print('  ✓ Added handler to bloc.dart');
+      
+      print('Successfully added handler "$handlerName" to BLoC "$blocName"');
+    } else {
+      print('Error: Invalid command. Use "generate" or "add-handler".');
+      print(parser.usage);
+    }
   } on ArgParserException catch (e) {
     print(e.message);
     print(parser.usage);
@@ -65,159 +112,14 @@ String _toSnakeCase(String text) {
   return text.replaceAllMapped(exp, (m) => '_${m.group(0)}').toLowerCase();
 }
 
-/// Creates the template string for the BLoC view.
-String _createViewTemplate(String blocName) {
-  final snakeCaseBlocName = _toSnakeCase(blocName);
-  return """
-
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'bloc.dart';
-import 'events.dart';
-import 'state.dart';
-
-class ${blocName}Page extends StatelessWidget {
-  const ${blocName}Page({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => ${blocName}Bloc()..add(${blocName}InitEvent()),
-      child: BlocConsumer<${blocName}Bloc, ${blocName}State>(
-        listener: (context, state) {
-          // handle navigation or snackbars
-        },
-        builder: (context, state) {
-          switch (state.status) {
-            case ${blocName}Status.initial:
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
-            case ${blocName}Status.loaded:
-              return ${blocName}LoadedPage(); // 👈 no args now
-            case ${blocName}Status.error:
-              return Scaffold(
-                body: Center(
-                  child: Text(state.error ?? "An error occurred"),
-                ),
-              );
-            default:
-              return const Scaffold(
-                body: Center(child: Text("Unknown state")),
-              );
-          }
-        },
-      ),
-    );
-  }
-}
-
-class ${blocName}LoadedPage extends StatelessWidget {
-  const ${blocName}LoadedPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-      return Scaffold(body: Center(child: Text('${blocName}',style: TextStyle(fontSize: 30),),),);
-  }
+String _toCamelCase(String text) {
+  if (text.isEmpty) return text;
+  final parts = text.split('_');
+  if (parts.length <= 1) return text.toLowerCase();
+  return parts.first.toLowerCase() + parts.sublist(1).map((part) => part[0].toUpperCase() + part.substring(1)).join('');
 }
 
 
 
-""";
-}
-
-/// Creates the template string for the BLoC state.
-String _createStateTemplate(String blocName) {
-  return """
 
 
-import 'package:equatable/equatable.dart';
-
-
-
-
-enum ${blocName}Status { initial,loading, loaded, error }
-
-class ${blocName}State extends Equatable {
-  final ${blocName}Status status;
-
-  final String? error;
-
-
-  const ${blocName}State({
-    required this.status,
-    this.error,
-  });
-
-  factory ${blocName}State.initial() => ${blocName}State(
-    status: ${blocName}Status.initial,
-    
-  );
-
-  ${blocName}State copyWith({
-    ${blocName}Status? status,
-    String? error,
-   
-  }) {
-    return ${blocName}State(
-      status: status ?? this.status,
-      error: error ?? this.error,
-    
-    );
-  }
-
-  @override
-  List<Object?> get props => [];
-}
-""";
-}
-
-/// Creates the template string for the BLoC events.
-String _createEventsTemplate(String blocName) {
-  return """
-abstract class ${blocName}Event {}
-
-class ${blocName}InitEvent extends ${blocName}Event {
-  ${blocName}InitEvent();
-}
-""";
-}
-
-/// Creates the template string for the BLoC bloc.
-String _createBlocTemplate(String blocName) {
-  return """
-
-import 'package:bloc/bloc.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-
-import 'events.dart';
-import 'state.dart';
-
-class ${blocName}Bloc extends Bloc<${blocName}Event, ${blocName}State> {
-
-  ${blocName}Bloc() : super(${blocName}State.initial()) {
-    on<${blocName}InitEvent>(_onInit);
-  
-  }
- 
-
-  Future<void> _onInit(${blocName}InitEvent event, Emitter<${blocName}State> emit) async {
-    try {
-    emit(state.copyWith(status: ${blocName}Status.loading));
-    //Iniatial task here
-      emit(state.copyWith(
-        status: ${blocName}Status.loaded,
-       
-      ));
-    } catch (e) {
-      emit(state.copyWith(status: ${blocName}Status.error, error: e.toString()));
-    }
-  }
-
-
-}
-
-""";
-}
