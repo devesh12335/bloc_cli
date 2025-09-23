@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:bloc_cli/templates/bloc.dart';
-import 'package:bloc_cli/templates/event.dart';
-import 'package:bloc_cli/templates/state.dart';
-import 'package:bloc_cli/templates/view.dart';
+import 'package:dev_bloc_cli/templates/bloc.dart';
+import 'package:dev_bloc_cli/templates/event.dart';
+import 'package:dev_bloc_cli/templates/state.dart';
+import 'package:dev_bloc_cli/templates/view.dart';
 import 'package:path/path.dart' as p;
 
 /// Generates a new BLoC boilerplate with a view, state, bloc, and events file.
