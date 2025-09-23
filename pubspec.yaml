@@ -1,5 +1,5 @@
 name: bloc_cli
-description: "A new Flutter package project."
+description: "A command-line interface tool to generate and manage BLoC architecture boilerplate in Flutter and Dart projects."
 version: 0.0.1
 homepage:
 
