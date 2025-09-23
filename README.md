@@ -4,6 +4,7 @@
 A powerful and simple command-line interface (CLI) tool for generating and modifying BLoC architecture boilerplate in your Flutter or Dart projects.
 
 -----
+### Interactive Doc -> https://devesh12335.github.io/bloc_cli
 
 ## Why Use BLoC CLI?
 
