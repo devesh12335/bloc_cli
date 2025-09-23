@@ -69,63 +69,155 @@ String _toSnakeCase(String text) {
 String _createViewTemplate(String blocName) {
   final snakeCaseBlocName = _toSnakeCase(blocName);
   return """
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../bloc/${snakeCaseBlocName}_bloc.dart';
+import 'bloc.dart';
+import 'events.dart';
+import 'state.dart';
 
-class ${blocName}View extends StatelessWidget {
-  const ${blocName}View({super.key});
+class ${blocName}Page extends StatelessWidget {
+  const ${blocName}Page({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ${blocName}Bloc(),
-      child: const Scaffold(
-        body: Center(
-          child: Text('${blocName} View'),
-        ),
+      create: (_) => ${blocName}Bloc()..add(${blocName}InitEvent()),
+      child: BlocConsumer<${blocName}Bloc, ${blocName}State>(
+        listener: (context, state) {
+          // handle navigation or snackbars
+        },
+        builder: (context, state) {
+          switch (state.status) {
+            case ${blocName}Status.initial:
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            case ${blocName}Status.loaded:
+              return ${blocName}LoadedPage(); // 👈 no args now
+            case ${blocName}Status.error:
+              return Scaffold(
+                body: Center(
+                  child: Text(state.error ?? "An error occurred"),
+                ),
+              );
+            default:
+              return const Scaffold(
+                body: Center(child: Text("Unknown state")),
+              );
+          }
+        },
       ),
     );
   }
 }
+
+class ${blocName}LoadedPage extends StatelessWidget {
+  const ${blocName}LoadedPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+      return Scaffold(body: Center(child: Text('${blocName}',style: TextStyle(fontSize: 30),),),);
+  }
+}
+
+
+
 """;
 }
 
 /// Creates the template string for the BLoC state.
 String _createStateTemplate(String blocName) {
   return """
-part of '../bloc/${_toSnakeCase(blocName)}_bloc.dart';
 
-sealed class ${blocName}State {}
 
-final class ${blocName}Initial extends ${blocName}State {}
+import 'package:equatable/equatable.dart';
+
+
+
+
+enum ${blocName}Status { initial,loading, loaded, error }
+
+class ${blocName}State extends Equatable {
+  final ${blocName}Status status;
+
+  final String? error;
+
+
+  const ${blocName}State({
+    required this.status,
+    this.error,
+  });
+
+  factory ${blocName}State.initial() => ${blocName}State(
+    status: ${blocName}Status.initial,
+    
+  );
+
+  ${blocName}State copyWith({
+    ${blocName}Status? status,
+    String? error,
+   
+  }) {
+    return ${blocName}State(
+      status: status ?? this.status,
+      error: error ?? this.error,
+    
+    );
+  }
+
+  @override
+  List<Object?> get props => [];
+}
 """;
 }
 
 /// Creates the template string for the BLoC events.
 String _createEventsTemplate(String blocName) {
   return """
-part of '../bloc/${_toSnakeCase(blocName)}_bloc.dart';
+abstract class ${blocName}Event {}
 
-sealed class ${blocName}Event {}
+class ${blocName}InitEvent extends ${blocName}Event {
+  ${blocName}InitEvent();
+}
 """;
 }
 
 /// Creates the template string for the BLoC bloc.
 String _createBlocTemplate(String blocName) {
   return """
+
+import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-part '${_toSnakeCase(blocName)}_events.dart';
-part '${_toSnakeCase(blocName)}_state.dart';
+
+import 'events.dart';
+import 'state.dart';
 
 class ${blocName}Bloc extends Bloc<${blocName}Event, ${blocName}State> {
-  ${blocName}Bloc() : super(${blocName}Initial()) {
-    on<${blocName}Event>((event, emit) {
-      // TODO: implement event handler
-    });
+
+  ${blocName}Bloc() : super(${blocName}State.initial()) {
+    on<${blocName}InitEvent>(_onInit);
+  
   }
+ 
+
+  Future<void> _onInit(${blocName}InitEvent event, Emitter<${blocName}State> emit) async {
+    try {
+    emit(state.copyWith(status: ${blocName}Status.loading));
+    //Iniatial task here
+      emit(state.copyWith(
+        status: ${blocName}Status.loaded,
+       
+      ));
+    } catch (e) {
+      emit(state.copyWith(status: ${blocName}Status.error, error: e.toString()));
+    }
+  }
+
+
 }
+
 """;
 }
