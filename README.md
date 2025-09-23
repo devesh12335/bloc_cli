@@ -1,4 +1,4 @@
-````
+
 # Dev BLoC CLI
 
 A powerful and simple command-line interface (CLI) tool for generating and modifying BLoC architecture boilerplate in your Flutter or Dart projects.
@@ -22,11 +22,11 @@ Install and activate the package with one simple command.
 
 ```bash
 dart pub global activate dev_bloc_cli
-````
+
 
 -----
 
-## 📖 Interactive Usage Guide
+## 📖 Interactive Usage Guide : https://devesh12335.github.io/bloc_cli/
 
 Once activated, you can use the commands from any directory in your terminal.
 
