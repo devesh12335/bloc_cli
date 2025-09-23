@@ -13,3 +13,6 @@ dev_bloc_cli Changelog
 
 ### 0.0.3
 * Readme Info and Documentation Updated
+
+### 0.0.4
+* Readme Info and Documentation Updated

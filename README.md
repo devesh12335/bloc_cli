@@ -22,7 +22,7 @@ Install and activate the package with one simple command.
 
 ```bash
 dart pub global activate dev_bloc_cli
-
+```
 
 -----
 
@@ -37,7 +37,7 @@ Creates a new BLoC with view, state, events, and bloc files.
 **Command:**
 
 ```bash
-dev_bloc_cli generate --name <BlocName>
+dart run dev_bloc_cli generate --name <BlocName>
 ```
 
 ### Add a New Handler
@@ -47,7 +47,7 @@ Adds a new event and a corresponding handler function to an existing BLoC.
 **Command:**
 
 ```bash
-dev_bloc_cli add-handler --name <BlocName> --handler <HandlerName>
+dart run dev_bloc_cli add-handler --name <BlocName> --handler <HandlerName>
 ```
 
 ### Add a New State Property
@@ -57,8 +57,6 @@ Adds a new property to the state class. **Note:** Enclose properties with specia
 **Command:**
 
 ```bash
-dev_bloc_cli add-state --name <BlocName> --property '<propertyName>:<DataType>'
+dart run dev_bloc_cli add-state --name <BlocName> --property '<propertyName>:<DataType>'
 ```
 
-```
-```
