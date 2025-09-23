@@ -13,6 +13,7 @@ void main(List<String> arguments) {
   parser.addCommand('generate', ArgParser()
     ..addOption('name',
         abbr: 'n', help: 'The name of the BLoC to generate.', mandatory: true));
+
   parser.addCommand('add-handler', ArgParser()
     ..addOption('name',
         abbr: 'n',
@@ -23,6 +24,15 @@ void main(List<String> arguments) {
         help: 'The name of the handler to add (e.g., "FetchData").',
         mandatory: true));
 
+  parser.addCommand('add-state', ArgParser()
+    ..addOption('name',
+        abbr: 'n',
+        help: 'The name of the BLoC to modify (e.g., "Login").',
+        mandatory: true)
+    ..addOption('property',
+        abbr: 'p',
+        help: 'The state property to add (e.g., "user:User").',
+        mandatory: true));
   try {
     final ArgResults results = parser.parse(arguments);
     final String? command = results.command?.name;
@@ -42,7 +52,8 @@ void main(List<String> arguments) {
       _generateFile(p.join(blocDir.path, 'bloc.dart'), createBlocTemplate(blocName));
 
       print('Successfully generated BLoC for "$blocName" in ${blocDir.path}');
-    } else if (command == 'add-handler') {
+    } 
+    else if (command == 'add-handler') {
       final String blocName = results.command!['name'] as String;
       final String handlerName = results.command!['handler'] as String;
       final String snakeCaseBlocName = _toSnakeCase(blocName);
@@ -84,7 +95,71 @@ void main(List<String> arguments) {
       print('  ✓ Added handler to bloc.dart');
       
       print('Successfully added handler "$handlerName" to BLoC "$blocName"');
-    } else {
+    } 
+    else if (command == 'add-state') {
+      final String blocName = results.command!['name'] as String;
+      final String propertyString = results.command!['property'] as String;
+      final String snakeCaseBlocName = _toSnakeCase(blocName);
+
+      print('Adding state property "$propertyString" to "$blocName"...');
+
+      final parts = propertyString.split(':');
+      if (parts.length != 2) {
+        print('Error: Invalid property format. Use "name:DataType".');
+        return;
+      }
+      final propertyName = parts[0];
+      final propertyType = parts[1];
+
+      final blocDir = Directory(p.join(Directory.current.path, snakeCaseBlocName));
+      if (!blocDir.existsSync()) {
+        print('Error: Directory for BLoC "$blocName" not found. Please run the "generate" command first.');
+        return;
+      }
+
+      final stateFile = File(p.join(blocDir.path, 'state.dart'));
+      if (!stateFile.existsSync()) {
+        print('Error: State file not found in ${blocDir.path}.');
+        return;
+      }
+
+      var stateContent = stateFile.readAsStringSync();
+
+      // Add new property to class definition
+      stateContent = stateContent.replaceFirst(
+        '  final String? error;',
+        '  final String? error;\n  final $propertyType? $propertyName;',
+      );
+
+      // Add property to constructor
+      stateContent = stateContent.replaceFirst(
+        'this.error,',
+        'this.error,\n    this.$propertyName,',
+      );
+
+      // Add property to copyWith method signature
+      stateContent = stateContent.replaceFirst(
+        'String? error,',
+        'String? error,\n    $propertyType? $propertyName,',
+      );
+
+      // Add property to copyWith method return
+      stateContent = stateContent.replaceFirst(
+        'error: error ?? this.error,',
+        'error: error ?? this.error,\n      $propertyName: $propertyName ?? this.$propertyName,',
+      );
+
+      // Add property to props list
+      stateContent = stateContent.replaceFirst(
+        '];',
+        ', $propertyName];',
+      );
+
+      stateFile.writeAsStringSync(stateContent);
+      print('  ✓ Added state property to state.dart');
+      
+      print('Successfully added state property "$propertyName" to BLoC "$blocName"');
+    }else {
       print('Error: Invalid command. Use "generate" or "add-handler".');
       print(parser.usage);
     }
