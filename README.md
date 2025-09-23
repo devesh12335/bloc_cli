@@ -21,12 +21,15 @@ Automate the repetitive parts of setting up BLoCs and focus on your business log
 Get up and running in three simple steps.
 
 1.  **Add Dependencies**
-    Ensure your `pubspec.yaml` file has the required dependencies.
+    Ensure your `pubspec.yaml` file has the required dependencies.all latest versions
 
     ```yaml
     dependencies:
-      args: ^2.4.2
-      path: ^1.8.3
+      args: 
+      path: 
+      flutter_bloc: 
+      bloc:
+      equatable:
     ```
 
 2.  **Add CLI to `bin` Directory**
