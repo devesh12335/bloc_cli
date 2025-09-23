@@ -1,3 +1,12 @@
-## 0.0.1
+dev_bloc_cli Changelog
+### 0.0.1
+* Initial Release: A CLI tool for generating and managing BLoC boilerplate. This version includes commands for:
 
-* TODO: Describe initial release.
+* generate: Creates a new BLoC with view, state, events, and bloc files.
+
+* add-handler: Adds a new event and handler to an existing BLoC.
+
+* add-state: Adds a new property to the state class.
+
+### 0.0.2
+* Readme Info and Documentation Updated

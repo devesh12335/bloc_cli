@@ -1,283 +1,208 @@
+<!-- Chosen Palette: Warm Neutrals & Subtle Accents -->
+<!-- Application Structure Plan: The application is designed as a single-page interactive guide, prioritizing scannability and direct interaction. The structure follows a logical flow: an introductory section with a link to the interactive doc, a benefits section, a streamlined installation guide, and an interactive usage guide. This structure was chosen to guide the user from high-level understanding (benefits) to practical application (installation and commands) without overwhelming them, making the information easily digestible and actionable. -->
+<!-- Visualization & Content Choices: The application uses a dynamic, interactive form to demonstrate CLI commands. The user can type in values, and the command string is generated and updated in real-time. This provides a hands-on, low-friction experience to teach command usage. The core purpose is to replace static text with a live tool, making the learning process more engaging and less prone to user error from typos. The visualization is a simple, reactive text display powered by vanilla JavaScript. NO SVG or Mermaid JS is used. -->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLoC CLI | Interactive Documentation</title>
+    <title>dev_BLoC CLI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chosen Palette: Warm Neutrals -->
-    <!-- Application Structure Plan: A single-page vertical layout featuring a hero, a visual grid for benefits, card-based installation steps, and an interactive tabbed section for building and copying CLI commands. This structure turns a static README into a practical, interactive tool, improving usability by allowing users to construct commands directly instead of just reading about them. -->
-    <!-- Visualization & Content Choices: Benefits -> Inform -> Icon Grid -> Visual appeal over list -> HTML/Tailwind. Installation -> Inform -> Numbered Cards -> Scannability -> HTML/Tailwind. Commands -> Interact/Inform -> Tabbed UI with interactive inputs -> Dynamic command generation for practical use -> JS for state management, DOM updates, and copy-to-clipboard functionality. No charts needed. CONFIRMING NO SVG/Mermaid. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #f7f3ed;
+            color: #3b3a36;
         }
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Source+Code+Pro:wght@400;600&display=swap');
-        .font-code {
-            font-family: 'Source Code Pro', monospace;
+        .container {
+            max-width: 800px;
         }
-        .tab-active {
-            background-color: #4f46e5;
-            color: white;
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-        .tab-inactive {
-            background-color: #e5e7eb;
-            color: #374151;
+        .code-block {
+            background-color: #2d3748;
+            color: #e2e8f0;
+        }
+        input, button {
+            transition: all 0.2s ease-in-out;
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
-
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-
-        <!-- Header Section -->
-        <header class="text-center py-16">
-            <h1 class="text-5xl md:text-6xl font-bold text-indigo-600">BLoC CLI</h1>
-            <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
-                A powerful and simple command-line interface (CLI) tool for generating and modifying BLoC architecture boilerplate in your Flutter or Dart projects.
-            </p>
-            <a href="#installation" class="mt-8 inline-block bg-indigo-600 text-white font-semibold px-8 py-3 rounded-lg shadow-md hover:bg-indigo-700 transition-colors duration-300">
-                Get Started
-            </a>
+<body class="flex flex-col items-center py-10 px-4 sm:px-6 lg:px-8">
+    <div class="container mx-auto space-y-12">
+        <header class="text-center space-y-2">
+            <h1 class="text-4xl sm:text-5xl font-bold text-gray-800">dev_BLoC CLI</h1>
+            <p class="text-lg text-gray-600">A powerful and simple command-line interface (CLI) tool for generating and modifying BLoC architecture boilerplate in your Flutter or Dart projects.</p>
         </header>
 
-        <main>
-            <!-- Benefits Section -->
-            <section id="benefits" class="py-16">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold">Why Use BLoC CLI?</h2>
-                    <p class="mt-2 text-gray-600">Automate the repetitive parts of setting up BLoCs and focus on your business logic.</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <div class="bg-white p-6 rounded-lg shadow-sm text-center">
-                        <div class="text-4xl mb-4">⚡️</div>
-                        <h3 class="text-xl font-semibold mb-2">Speed</h3>
-                        <p class="text-gray-600">Quickly generate a complete, working BLoC with a single command.</p>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-sm text-center">
-                        <div class="text-4xl mb-4">⚖️</div>
-                        <h3 class="text-xl font-semibold mb-2">Consistency</h3>
-                        <p class="text-gray-600">Ensures all BLoC files follow a consistent folder structure and naming convention.</p>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-sm text-center">
-                        <div class="text-4xl mb-4">⚙️</div>
-                        <h3 class="text-xl font-semibold mb-2">Efficiency</h3>
-                        <p class="text-gray-600">Easily add new events, handlers, and state properties without manual file edits.</p>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-sm text-center">
-                        <div class="text-4xl mb-4">📝</div>
-                        <h3 class="text-xl font-semibold mb-2">Less Boilerplate</h3>
-                        <p class="text-gray-600">Reduces the amount of manual code you have to write, preventing errors.</p>
-                    </div>
-                </div>
-            </section>
+        <hr class="border-t border-gray-300 my-8">
 
-            <!-- Installation Section -->
-            <section id="installation" class="py-16">
-                 <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold">🚀 Installation</h2>
-                    <p class="mt-2 text-gray-600">Get up and running in three simple steps.</p>
+        <section class="text-center">
+            <h3 class="text-xl text-gray-600">Interactive Doc -> <a href="https://devesh12335.github.io/bloc_cli" class="text-blue-600 hover:text-blue-800 underline">https://devesh12335.github.io/bloc_cli</a></h3>
+        </section>
+
+        <hr class="border-t border-gray-300 my-8">
+
+        <section class="space-y-6">
+            <h2 class="text-3xl font-bold text-gray-800 text-center">Why Use dev_BLoC CLI?</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="card p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+                    <span class="text-4xl mb-4">⚡️</span>
+                    <h3 class="text-xl font-semibold mb-2">Speed</h3>
+                    <p class="text-gray-600">Quickly generate a complete, working BLoC with a single command.</p>
                 </div>
-                <div class="max-w-4xl mx-auto space-y-8">
-                    <div class="bg-white p-6 rounded-lg shadow-sm flex items-start space-x-6">
-                        <div class="text-3xl font-bold text-indigo-500 bg-indigo-100 rounded-full h-12 w-12 flex items-center justify-center">1</div>
-                        <div>
-                            <h3 class="text-xl font-semibold mb-2">Add Dependencies</h3>
-                            <p class="mb-4 text-gray-600">Ensure your `pubspec.yaml` file has the required dependencies.</p>
-                            <div class="relative bg-gray-800 text-white p-4 rounded-md font-code text-sm">
-                                <pre><code>dependencies:
-   args: 
-   path: 
-   flutter_bloc: 
-   bloc:
-   equatable:</code></pre>
-                                <button class="copy-btn absolute top-2 right-2 bg-gray-600 hover:bg-gray-500 text-white text-xs px-2 py-1 rounded">Copy</button>
-                            </div>
-                        </div>
+                <div class="card p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+                    <span class="text-4xl mb-4">⚖️</span>
+                    <h3 class="text-xl font-semibold mb-2">Consistency</h3>
+                    <p class="text-gray-600">Ensures all BLoC files follow a consistent folder structure and naming convention.</p>
+                </div>
+                <div class="card p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+                    <span class="text-4xl mb-4">⚙️</span>
+                    <h3 class="text-xl font-semibold mb-2">Efficiency</h3>
+                    <p class="text-gray-600">Easily add new events, handlers, and state properties without manual file edits.</p>
+                </div>
+                <div class="card p-6 rounded-lg shadow-md flex flex-col items-center text-center">
+                    <span class="text-4xl mb-4">📝</span>
+                    <h3 class="text-xl font-semibold mb-2">Less Boilerplate</h3>
+                    <p class="text-gray-600">Reduces the amount of manual code you have to write, preventing errors.</p>
+                </div>
+            </div>
+        </section>
+
+        <hr class="border-t border-gray-300 my-8">
+
+        <section class="space-y-6">
+            <h2 class="text-3xl font-bold text-gray-800 text-center">🚀 Installation</h2>
+            <div class="card p-6 rounded-lg shadow-md space-y-4">
+                <p class="text-lg text-gray-600 text-center">Install and activate the package with one simple command.</p>
+                <div class="code-block p-4 rounded-lg flex justify-between items-center">
+                    <code id="installCommand" class="select-all overflow-auto whitespace-nowrap">dart pub global activate dev_bloc_cli</code>
+                    <button onclick="copyCommand('installCommand')" class="ml-4 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-all duration-200">Copy</button>
+                </div>
+            </div>
+        </section>
+
+        <hr class="border-t border-gray-300 my-8">
+
+        <section class="space-y-6">
+            <h2 class="text-3xl font-bold text-gray-800 text-center">📖 Interactive Usage Guide</h2>
+            <p class="text-lg text-gray-600 text-center">Once activated, you can use the commands from any directory in your terminal.</p>
+            
+            <div class="space-y-8">
+                <div class="card p-6 rounded-lg shadow-md space-y-4">
+                    <h3 class="text-2xl font-semibold text-gray-800">Generate a New BLoC</h3>
+                    <p class="text-gray-600">Creates a new BLoC with `view`, `state`, `events`, and `bloc` files.</p>
+                    <div class="flex flex-col sm:flex-row gap-4 items-center">
+                        <label for="generateName" class="text-gray-700 font-medium">BLoC Name:</label>
+                        <input type="text" id="generateName" placeholder="e.g., Auth" class="flex-1 p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
-                    <div class="bg-white p-6 rounded-lg shadow-sm flex items-start space-x-6">
-                        <div class="text-3xl font-bold text-indigo-500 bg-indigo-100 rounded-full h-12 w-12 flex items-center justify-center">2</div>
-                        <div>
-                            <h3 class="text-xl font-semibold mb-2">Add CLI to `bin` Directory</h3>
-                            <p class="text-gray-600">Place the `main.dart` file in your project's `bin/` folder. Ensure the package name in your `pubspec.yaml` matches what you use in commands (e.g., `bloc_cli`).</p>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-sm flex items-start space-x-6">
-                        <div class="text-3xl font-bold text-indigo-500 bg-indigo-100 rounded-full h-12 w-12 flex items-center justify-center">3</div>
-                        <div>
-                            <h3 class="text-xl font-semibold mb-2">Get Dependencies</h3>
-                            <p class="mb-4 text-gray-600">Run the following command in your terminal to download the packages.</p>
-                            <div class="relative bg-gray-800 text-white p-4 rounded-md font-code text-sm">
-                                <pre><code>dart pub get</code></pre>
-                                <button class="copy-btn absolute top-2 right-2 bg-gray-600 hover:bg-gray-500 text-white text-xs px-2 py-1 rounded">Copy</button>
-                            </div>
-                        </div>
+                    <div class="code-block p-4 rounded-lg flex justify-between items-center">
+                        <code id="generateCommand" class="select-all overflow-auto whitespace-nowrap">dev_bloc_cli generate --name &lt;BlocName&gt;</code>
+                        <button onclick="copyCommand('generateCommand')" class="ml-4 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-all duration-200">Copy</button>
                     </div>
                 </div>
-            </section>
 
-            <!-- Usage Section -->
-            <section id="usage" class="py-16">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold">📖 Interactive Usage Guide</h2>
-                    <p class="mt-2 text-gray-600">Select a command to build and copy it.</p>
-                </div>
-
-                <div class="max-w-4xl mx-auto">
-                    <div id="tabs" class="flex justify-center space-x-2 md:space-x-4 mb-8">
-                        <button data-tab="generate" class="command-tab tab-active px-4 py-2 rounded-md font-semibold transition-colors duration-300">Generate BLoC</button>
-                        <button data-tab="add-handler" class="command-tab tab-inactive px-4 py-2 rounded-md font-semibold transition-colors duration-300">Add Handler</button>
-                        <button data-tab="add-state" class="command-tab tab-inactive px-4 py-2 rounded-md font-semibold transition-colors duration-300">Add State Property</button>
+                <div class="card p-6 rounded-lg shadow-md space-y-4">
+                    <h3 class="text-2xl font-semibold text-gray-800">Add a New Handler</h3>
+                    <p class="text-gray-600">Adds a new event and a corresponding handler function to an existing BLoC.</p>
+                    <div class="flex flex-col sm:flex-row gap-4 items-center">
+                        <label for="handlerName" class="text-gray-700 font-medium">BLoC Name:</label>
+                        <input type="text" id="handlerBlocName" placeholder="e.g., Login" class="flex-1 p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label for="handlerName" class="text-gray-700 font-medium">Handler Name:</label>
+                        <input type="text" id="handlerName" placeholder="e.g., FetchUser" class="flex-1 p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
-
-                    <div id="tab-content" class="bg-white p-8 rounded-lg shadow-md">
-                        <!-- Generate Panel -->
-                        <div id="generate" class="tab-panel">
-                            <h3 class="text-2xl font-bold mb-2">Generate a New BLoC</h3>
-                            <p class="mb-6 text-gray-600">Creates a new BLoC with `view`, `state`, `events`, and `bloc` files.</p>
-                            
-                            <label for="generate-bloc-name" class="font-semibold">BLoC Name:</label>
-                            <input type="text" id="generate-bloc-name" placeholder="e.g., Login" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            
-                            <h4 class="font-semibold mt-6 mb-2">Generated Command:</h4>
-                            <div class="relative bg-gray-800 text-white p-4 rounded-md font-code text-sm">
-                                <pre><code id="generate-output">dart run bloc_cli generate --name &lt;BlocName&gt;</code></pre>
-                                <button class="copy-btn absolute top-2 right-2 bg-gray-600 hover:bg-gray-500 text-white text-xs px-2 py-1 rounded">Copy</button>
-                            </div>
-                        </div>
-
-                        <!-- Add Handler Panel -->
-                        <div id="add-handler" class="tab-panel hidden">
-                            <h3 class="text-2xl font-bold mb-2">Add a New Handler</h3>
-                            <p class="mb-6 text-gray-600">Adds a new event and a corresponding handler function to an existing BLoC.</p>
-
-                            <label for="handler-bloc-name" class="font-semibold">Existing BLoC Name:</label>
-                            <input type="text" id="handler-bloc-name" placeholder="e.g., Login" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-
-                            <label for="handler-name" class="font-semibold mt-4 block">New Handler Name:</label>
-                            <input type="text" id="handler-name" placeholder="e.g., FetchData" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            
-                            <h4 class="font-semibold mt-6 mb-2">Generated Command:</h4>
-                            <div class="relative bg-gray-800 text-white p-4 rounded-md font-code text-sm">
-                                <pre><code id="handler-output">dart run bloc_cli add-handler --name &lt;BlocName&gt; --handler &lt;HandlerName&gt;</code></pre>
-                                <button class="copy-btn absolute top-2 right-2 bg-gray-600 hover:bg-gray-500 text-white text-xs px-2 py-1 rounded">Copy</button>
-                            </div>
-                        </div>
-
-                        <!-- Add State Panel -->
-                        <div id="add-state" class="tab-panel hidden">
-                            <h3 class="text-2xl font-bold mb-2">Add a New State Property</h3>
-                            <p class="mb-6 text-gray-600">Adds a new property to the state class. <br><strong class="font-semibold">Note:</strong> Enclose properties with special characters (like `List<Product>`) in single quotes in your terminal.</p>
-                            
-                            <label for="state-bloc-name" class="font-semibold">Existing BLoC Name:</label>
-                            <input type="text" id="state-bloc-name" placeholder="e.g., Login" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-
-                            <label for="state-property-name" class="font-semibold mt-4 block">Property Name:</label>
-                            <input type="text" id="state-property-name" placeholder="e.g., user" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            
-                            <label for="state-property-type" class="font-semibold mt-4 block">Data Type:</label>
-                            <input type="text" id="state-property-type" placeholder="e.g., User or List<Product>" class="w-full mt-1 p-2 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-
-                            <h4 class="font-semibold mt-6 mb-2">Generated Command:</h4>
-                            <div class="relative bg-gray-800 text-white p-4 rounded-md font-code text-sm">
-                                <pre><code id="state-output">dart run bloc_cli add-state --name &lt;BlocName&gt; --property '&lt;propertyName&gt;:&lt;DataType&gt;'</code></pre>
-                                <button class="copy-btn absolute top-2 right-2 bg-gray-600 hover:bg-gray-500 text-white text-xs px-2 py-1 rounded">Copy</button>
-                            </div>
-                        </div>
+                    <div class="code-block p-4 rounded-lg flex justify-between items-center">
+                        <code id="handlerCommand" class="select-all overflow-auto whitespace-nowrap">dev_bloc_cli add-handler --name &lt;BlocName&gt; --handler &lt;HandlerName&gt;</code>
+                        <button onclick="copyCommand('handlerCommand')" class="ml-4 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-all duration-200">Copy</button>
                     </div>
                 </div>
-            </section>
-        </main>
-        
-        <footer class="text-center py-8 border-t mt-16">
-            <p class="text-gray-500">BLoC CLI Documentation</p>
-        </footer>
 
+                <div class="card p-6 rounded-lg shadow-md space-y-4">
+                    <h3 class="text-2xl font-semibold text-gray-800">Add a New State Property</h3>
+                    <p class="text-gray-600">Adds a new property to the state class. <span class="font-semibold">Note:</span> Enclose properties with special characters (like `List<Product>`) in single quotes in your terminal.</p>
+                    <div class="flex flex-col sm:flex-row gap-4 items-center">
+                        <label for="stateBlocName" class="text-gray-700 font-medium">BLoC Name:</label>
+                        <input type="text" id="stateBlocName" placeholder="e.g., Login" class="flex-1 p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label for="propertyName" class="text-gray-700 font-medium">Property:</label>
+                        <input type="text" id="propertyName" placeholder="e.g., user:User" class="flex-1 p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="code-block p-4 rounded-lg flex justify-between items-center">
+                        <code id="stateCommand" class="select-all overflow-auto whitespace-nowrap">dev_bloc_cli add-state --name &lt;BlocName&gt; --property '&lt;propertyName&gt;:&lt;DataType&gt;'</code>
+                        <button onclick="copyCommand('stateCommand')" class="ml-4 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition-all duration-200">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const tabs = document.querySelectorAll('.command-tab');
-            const panels = document.querySelectorAll('.tab-panel');
+        const generateNameInput = document.getElementById('generateName');
+        const generateCommandCode = document.getElementById('generateCommand');
+        const handlerBlocNameInput = document.getElementById('handlerBlocName');
+        const handlerNameInput = document.getElementById('handlerName');
+        const handlerCommandCode = document.getElementById('handlerCommand');
+        const stateBlocNameInput = document.getElementById('stateBlocName');
+        const propertyNameInput = document.getElementById('propertyName');
+        const stateCommandCode = document.getElementById('stateCommand');
 
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    tabs.forEach(t => {
-                        t.classList.remove('tab-active');
-                        t.classList.add('tab-inactive');
-                    });
-                    tab.classList.add('tab-active');
-                    tab.classList.remove('tab-inactive');
+        const packageName = 'dev_bloc_cli';
 
-                    const targetPanelId = tab.dataset.tab;
-                    panels.forEach(panel => {
-                        if (panel.id === targetPanelId) {
-                            panel.classList.remove('hidden');
-                        } else {
-                            panel.classList.add('hidden');
-                        }
-                    });
-                });
-            });
-            
-            const copyButtons = document.querySelectorAll('.copy-btn');
-            copyButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const codeElement = button.previousElementSibling;
-                    const textToCopy = codeElement.innerText;
-                    
-                    const tempTextArea = document.createElement('textarea');
-                    tempTextArea.value = textToCopy;
-                    document.body.appendChild(tempTextArea);
-                    tempTextArea.select();
-                    try {
-                        document.execCommand('copy');
-                        button.innerText = 'Copied!';
-                        setTimeout(() => {
-                            button.innerText = 'Copy';
-                        }, 2000);
-                    } catch (err) {
-                        console.error('Failed to copy text: ', err);
-                    }
-                    document.body.removeChild(tempTextArea);
-                });
-            });
-
-            const generateBlocNameInput = document.getElementById('generate-bloc-name');
-            const generateOutput = document.getElementById('generate-output');
-            generateBlocNameInput.addEventListener('input', (e) => {
-                const blocName = e.target.value || '<BlocName>';
-                generateOutput.textContent = `dart run bloc_cli generate --name ${blocName}`;
-            });
-
-            const handlerBlocNameInput = document.getElementById('handler-bloc-name');
-            const handlerNameInput = document.getElementById('handler-name');
-            const handlerOutput = document.getElementById('handler-output');
-
-            function updateHandlerCommand() {
-                const blocName = handlerBlocNameInput.value || '<BlocName>';
-                const handlerName = handlerNameInput.value || '<HandlerName>';
-                handlerOutput.textContent = `dart run bloc_cli add-handler --name ${blocName} --handler ${handlerName}`;
-            }
-            handlerBlocNameInput.addEventListener('input', updateHandlerCommand);
-            handlerNameInput.addEventListener('input', updateHandlerCommand);
-
-            const stateBlocNameInput = document.getElementById('state-bloc-name');
-            const statePropNameInput = document.getElementById('state-property-name');
-            const statePropTypeInput = document.getElementById('state-property-type');
-            const stateOutput = document.getElementById('state-output');
-
-            function updateStateCommand() {
-                const blocName = stateBlocNameInput.value || '<BlocName>';
-                const propName = statePropNameInput.value || '<propertyName>';
-                const propType = statePropTypeInput.value || '<DataType>';
-                stateOutput.textContent = `dart run bloc_cli add-state --name ${blocName} --property '${propName}:${propType}'`;
-            }
-            stateBlocNameInput.addEventListener('input', updateStateCommand);
-            statePropNameInput.addEventListener('input', updateStateCommand);
-            statePropTypeInput.addEventListener('input', updateStateCommand);
+        generateNameInput.addEventListener('input', () => {
+            const blocName = generateNameInput.value.trim() || '<BlocName>';
+            generateCommandCode.textContent = `${packageName} generate --name ${blocName}`;
         });
+
+        handlerBlocNameInput.addEventListener('input', updateHandlerCommand);
+        handlerNameInput.addEventListener('input', updateHandlerCommand);
+
+        stateBlocNameInput.addEventListener('input', updateStateCommand);
+        propertyNameInput.addEventListener('input', updateStateCommand);
+
+        function updateHandlerCommand() {
+            const blocName = handlerBlocNameInput.value.trim() || '<BlocName>';
+            const handlerName = handlerNameInput.value.trim() || '<HandlerName>';
+            handlerCommandCode.textContent = `${packageName} add-handler --name ${blocName} --handler ${handlerName}`;
+        }
+
+        function updateStateCommand() {
+            const blocName = stateBlocNameInput.value.trim() || '<BlocName>';
+            const property = propertyNameInput.value.trim() || '<propertyName>:<DataType>';
+            const propertyValue = property.includes(' ') || property.includes('<') || property.includes('>') ? `'${property}'` : property;
+            stateCommandCode.textContent = `${packageName} add-state --name ${blocName} --property ${propertyValue}`;
+        }
+
+        async function copyCommand(elementId) {
+            const codeElement = document.getElementById(elementId);
+            const textToCopy = codeElement.textContent;
+            try {
+                // Use the clipboard API for modern browsers
+                await navigator.clipboard.writeText(textToCopy);
+                alert('Command copied to clipboard!');
+            } catch (err) {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = textToCopy;
+                textarea.style.position = 'fixed';
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    alert('Command copied to clipboard!');
+                } catch (err) {
+                    alert('Failed to copy command.');
+                } finally {
+                    document.body.removeChild(textarea);
+                }
+            }
+        }
     </script>
 </body>
 </html>
