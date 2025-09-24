@@ -1,11 +1,14 @@
 name: dev_bloc_cli
 description: "A command-line interface tool to generate and manage BLoC architecture boilerplate in Flutter and Dart projects."
-version: 0.0.4
+version: 0.0.5
 homepage: https://github.com/devesh12335/bloc_cli
 
 environment:
   sdk: ^3.9.0
   flutter: ">=1.17.0"
+
+executables:
+  dev_bloc_cli: dev_bloc_cli    
 
 dependencies:
   flutter:
