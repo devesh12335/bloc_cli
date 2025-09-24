@@ -19,3 +19,6 @@ dev_bloc_cli Changelog
 
 ### 0.0.5
 * Commands shortened
+
+### 0.0.6
+* Commands shortened
