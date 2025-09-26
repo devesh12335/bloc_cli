@@ -22,3 +22,6 @@ dev_bloc_cli Changelog
 
 ### 0.0.6
 * Commands shortened
+
+### 0.0.7
+* View template small issue fixed
