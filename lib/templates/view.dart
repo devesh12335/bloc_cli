@@ -21,7 +21,7 @@ class ${blocName}Page extends StatelessWidget {
         },
         builder: (context, state) {
           switch (state.status) {
-            case ${blocName}Status.initial:
+            case ${blocName}Status.loading:
               return const Scaffold(
                 body: Center(child: CircularProgressIndicator()),
               );
@@ -49,6 +49,7 @@ class ${blocName}LoadedPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+   final state = context.watch<${blocName}Bloc>().state; 
       return Scaffold(body: Center(child: Text('${blocName}',style: TextStyle(fontSize: 30),),),);
   }
 }
